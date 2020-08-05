@@ -1,0 +1,32 @@
+trigger:
+  - master
+
+pool:
+  vmImage: 'ubuntu-20.04'
+
+stages:
+
+  - stage: Build_docker_image_and_Push
+    jobs:
+      - job: Build_docker_image
+        steps:
+          - bash: sudo apt-get install qemu-user-static
+            name: install_qemu_user_static_for_docker_buildx
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'DockerHub'
+              command: 'login'
+            name: Login_to_dokerIo
+          - bash: |
+              docker buildx rm default
+              echo 'Remove docker default builder'
+              docker buildx create --name newBuilder
+              echo 'Create a new builder'
+              docker buildx use newBuilder
+              echo 'Configure docker to use the new builder'
+            name: Prepare_and_configure_Docker_buildx
+          - bash: |
+              docker buildx build --push \
+              --platform linux/amd64,linux/arm64/v8,linux/arm64 \
+              --build-arg DEPENDENCY=jar-dependency --tag johnweetaker/kibana:latest .
+            name: Build_multi_arch_image_and_Push
