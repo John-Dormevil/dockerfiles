@@ -27,6 +27,6 @@ stages:
             name: Prepare_and_configure_Docker_buildx
           - bash: |
               docker buildx build --push \
-              --platform linux/amd64,linux/arm64/v8,linux/arm64 \
+              --platform linux/amd64,linux/arm64/v8 \
               --build-arg DEPENDENCY=jar-dependency --tag johnweetaker/kibana:latest kibana
             name: Build_multi_arch_image_and_Push
